@@ -1,0 +1,41 @@
+#+title: Rofi Blocks Apps
+
+Apps built using the [[https://github.com/OmarCastro/rofi-blocks/][~rofi-blocks]]~ plugin for [[https://github.com/davatorium/rofi][rofi]].
+
+Written in Golang because it made concurrency easy and I can distribute
+a compiled binary instead of making people mess with Python packaging.
+
+* Current apps
+The following examples from ~rofi-blocks~ have been recreated
+- focus-lines
+- show-lines
+- action-logger
+
+* Install
+You will need ~rofi~, ~rofi-blocks~, and Golang >=16.3
+
+Clone this repository, then run ~go build .~ in the directory to produce
+the executable ~rofi-blocks-apps~.
+
+* Design
+An app can do 3 things
+1. Update the ~rofi-blocks~ display
+   This can be done either in response to an event sent from
+   ~rofi-blocks~ (see the ~action-logger~ example) or independently (see
+   the ~show-lines~ example)
+2. Replace the current ~rofi~ process
+   Allows for adjusting the configuration and theming of ~rofi~.
+   Warning - this is (of course) slow, and visually noticable
+3. Transfer control to another app
+
+Only one app can be making changes to the ~rofi-blocks~ display or the
+~rofi~ process at a time and only one app can receive events at a time.
+
+Updates to the ~rofi-blocks~ display are sent at most every 100ms to
+prevent ~rofi-blocks~ from ignoring an update because it received a new
+one. (I have considered listening to the debug output from the ~rofi~
+process to block sending until it reports it is ready, but this seems
+like a lot of extra complexity for not very much gain. Also, I cannot
+get the ~G_MESSAGES_DEBUG~ environment variable to work consistently
+when adding it with ~cmd.Env = append(cmd.Env,
+"G_MESSAGES_DEBUG=BlocksMode")~)
