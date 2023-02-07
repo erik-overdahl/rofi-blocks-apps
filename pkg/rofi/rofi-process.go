@@ -8,7 +8,6 @@ import (
 	"log"
 	"os"
 	"os/exec"
-	"sync"
 	"time"
 )
 
@@ -104,11 +103,7 @@ func (r *RofiProcess) SendUpdates(updates <-chan []OutputUpdate) {
 }
 
 func (r *RofiProcess) sendOutput() {
-	outputLock := sync.Mutex{}
-
 	send := func() {
-		outputLock.Lock()
-		defer outputLock.Unlock()
 		if r.Output.Changes > 0 {
 			msg, err := r.Output.MarshalJson()
 			if err != nil {
