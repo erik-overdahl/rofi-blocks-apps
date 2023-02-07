@@ -27,7 +27,7 @@ func MakeVolumeApp() *VolumeApp {
 func (app *VolumeApp) Start() error {
 	initial := []rofi.OutputUpdate{
 		rofi.PromptUpdate{"Volume"},
-		rofi.AddAllLinesUpdate{Lines: []*rofi.RofiBlocksLine{
+		rofi.AddAllLinesUpdate{Lines: []rofi.RofiBlocksLine{
 			{Text: "volume up", Icon: rofi.ICONS_DIR + "/status/audio-volume-high-symbolic.svg"},
 			{Text: "volume down", Icon: rofi.ICONS_DIR + "/status/audio-volume-low-symbolic.svg"},
 			{Text: "toggle mute", Icon: rofi.ICONS_DIR + "/status/audio-volume-muted-symbolic.svg"},

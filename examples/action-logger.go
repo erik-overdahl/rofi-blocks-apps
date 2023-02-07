@@ -22,6 +22,10 @@ func MakeActionLoggerApp() *ActionLoggerApp {
 	return app
 }
 
+func (app *ActionLoggerApp) Name() string {
+	return "action-logger"
+}
+
 func (app *ActionLoggerApp) Start() error {
 	initial := []rofi.OutputUpdate{
 		rofi.PromptUpdate{"Updating input also logs action"},
@@ -41,12 +45,11 @@ func (app *ActionLoggerApp) handleEvent(event rofi.RofiBlocksEvent) error {
 	if err != nil {
 		return err
 	}
+	eventLine := rofi.NewRofiBlocksLine()
+	eventLine.Text = string(text)
+	eventLine.Data = fmt.Sprintf("%d", app.lineNum)
 	app.SendOutput([]rofi.OutputUpdate{
-		rofi.AddLineUpdate{Prepend: true,
-			Line: &rofi.RofiBlocksLine{
-				Text: string(text),
-				Data: fmt.Sprintf("%d", app.lineNum),
-			}},
+		rofi.AddLineUpdate{Prepend: true, Line: *eventLine},
 	})
 	app.lineNum++
 	return nil

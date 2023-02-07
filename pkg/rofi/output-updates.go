@@ -1,5 +1,7 @@
 package rofi
 
+import "github.com/google/uuid"
+
 const (
 	promptChanged      = 0x01
 	messageChanged     = 0x02
@@ -68,80 +70,28 @@ func (u ActiveEntryUpdate) Apply(output *RofiBlocksOutput) {
 	output.ActiveEntry = u.Value
 }
 
-type LineTextUpdate struct {
-	Index int
-	Value string
+type LineUpdate struct {
+	Line RofiBlocksLine
 }
 
-func (u LineTextUpdate) Apply(output *RofiBlocksOutput) {
+func (u LineUpdate) Apply(output *RofiBlocksOutput) {
 	output.Changes |= linesChanged
-	line := output.Lines[u.Index]
-	line.Text = u.Value
-}
-
-type LineIconUpdate struct {
-	Index int
-	Value string
-}
-
-func (u LineIconUpdate) Apply(output *RofiBlocksOutput) {
-	output.Changes |= linesChanged
-	line := output.Lines[u.Index]
-	line.Icon = u.Value
-}
-
-type LineDataUpdate struct {
-	Index int
-	Value string
-}
-
-func (u LineDataUpdate) Apply(output *RofiBlocksOutput) {
-	output.Changes |= linesChanged
-	line := output.Lines[u.Index]
-	line.Data = u.Value
-}
-
-type LineMarkupUpdate struct {
-	Index int
-	Value bool
-}
-
-func (u LineMarkupUpdate) Apply(output *RofiBlocksOutput) {
-	output.Changes |= linesChanged
-	line := output.Lines[u.Index]
-	line.Markup = u.Value
-}
-
-type LineHighlightUpdate struct {
-	Index int
-	Value bool
-}
-
-func (u LineHighlightUpdate) Apply(output *RofiBlocksOutput) {
-	output.Changes |= linesChanged
-	line := output.Lines[u.Index]
-	line.Highlight = u.Value
-}
-
-type LineUrgentUpdate struct {
-	Index int
-	Value bool
-}
-
-func (u LineUrgentUpdate) Apply(output *RofiBlocksOutput) {
-	output.Changes |= linesChanged
-	line := output.Lines[u.Index]
-	line.Highlight = u.Value
+	for i, line := range output.Lines {
+		if line.Id == u.Line.Id {
+			output.Lines[i] = u.Line
+			break
+		}
+	}
 }
 
 type RemoveLineUpdate struct {
-	Line *RofiBlocksLine
+	LineId uuid.UUID
 }
 
 func (u RemoveLineUpdate) Apply(output *RofiBlocksOutput) {
 	output.Changes |= linesChanged
-	for i := range output.Lines {
-		if output.Lines[i] == u.Line {
+	for i, line := range output.Lines {
+		if line.Id == u.LineId {
 			output.Lines = append(output.Lines[:i], output.Lines[i+1:]...)
 			break
 		}
@@ -150,20 +100,20 @@ func (u RemoveLineUpdate) Apply(output *RofiBlocksOutput) {
 
 type AddLineUpdate struct {
 	Prepend bool
-	Line    *RofiBlocksLine
+	Line    RofiBlocksLine
 }
 
 func (u AddLineUpdate) Apply(output *RofiBlocksOutput) {
 	output.Changes |= linesChanged
 	if u.Prepend {
-		output.Lines = append([]*RofiBlocksLine{u.Line}, output.Lines...)
+		output.Lines = append([]RofiBlocksLine{u.Line}, output.Lines...)
 	} else {
 		output.Lines = append(output.Lines, u.Line)
 	}
 }
 
 type AddAllLinesUpdate struct {
-	Lines []*RofiBlocksLine
+	Lines []RofiBlocksLine
 }
 
 func (u AddAllLinesUpdate) Apply(output *RofiBlocksOutput) {
@@ -171,23 +121,10 @@ func (u AddAllLinesUpdate) Apply(output *RofiBlocksOutput) {
 	output.Lines = append(output.Lines, u.Lines...)
 }
 
-type ReplaceLineUpdate struct {
-	Existing, New *RofiBlocksLine
-}
-
-func (u ReplaceLineUpdate) Apply(output *RofiBlocksOutput) {
-	output.Changes |= linesChanged
-	for i, line := range output.Lines {
-		if u.Existing == line {
-			output.Lines[i] = u.New
-		}
-	}
-}
-
 type ClearLinesUpdate struct{}
 
 func (u ClearLinesUpdate) Apply(output *RofiBlocksOutput) {
-	output.Lines = []*RofiBlocksLine{}
+	output.Lines = []RofiBlocksLine{}
 	output.Changes |= linesChanged
 }
 
@@ -205,7 +142,7 @@ func (u RestoreState) Apply(output *RofiBlocksOutput) {
 	output.Input = u.Output.Input
 	output.InputAction = u.Output.InputAction
 	output.ActiveEntry = u.Output.ActiveEntry
-	output.Lines = make([]*RofiBlocksLine, len(u.Output.Lines), len(u.Output.Lines))
+	output.Lines = make([]RofiBlocksLine, len(u.Output.Lines), len(u.Output.Lines))
 	for i := range u.Output.Lines {
 		output.Lines[i] = u.Output.Lines[i]
 	}

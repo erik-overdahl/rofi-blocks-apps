@@ -2,6 +2,8 @@ package rofi
 
 import (
 	"encoding/json"
+
+	"github.com/google/uuid"
 )
 
 const (
@@ -26,12 +28,17 @@ type RofiBlocksEvent struct {
 }
 
 type RofiBlocksLine struct {
-	Text      string `json:"text,omitempty"`
-	Icon      string `json:"icon,omitempty"`
-	Data      string `json:"data,omitempty"`
-	Urgent    bool   `json:"urgent,omitempty"`
-	Highlight bool   `json:"highlight,omitempty"`
-	Markup    bool   `json:"markup,omitempty"`
+	Id        uuid.UUID `json:"-"`
+	Text      string    `json:"text,omitempty"`
+	Icon      string    `json:"icon,omitempty"`
+	Data      string    `json:"data,omitempty"`
+	Urgent    bool      `json:"urgent,omitempty"`
+	Highlight bool      `json:"highlight,omitempty"`
+	Markup    bool      `json:"markup,omitempty"`
+}
+
+func NewRofiBlocksLine() *RofiBlocksLine {
+	return &RofiBlocksLine{Id: uuid.New()}
 }
 
 // for the output struct, we send just the delta (with the exception that,
@@ -44,13 +51,13 @@ type RofiBlocksOutput struct {
 	Input       string
 	ActiveEntry int
 	InputAction string
-	Lines       []*RofiBlocksLine
+	Lines       []RofiBlocksLine
 }
 
 func MakeRofiBlocksOutput() *RofiBlocksOutput {
 	return &RofiBlocksOutput{
 		InputAction: INPUT_ACTION_FILTER, // default
-		Lines: []*RofiBlocksLine{},
+		Lines:       []RofiBlocksLine{},
 	}
 }
 
@@ -87,4 +94,3 @@ func (o RofiBlocksOutput) MarshalJson() ([]byte, error) {
 	pieces["lines"] = o.Lines
 	return json.Marshal(pieces)
 }
-

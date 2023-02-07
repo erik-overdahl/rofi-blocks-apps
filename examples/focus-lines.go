@@ -17,10 +17,14 @@ func MakeFocusLinesApp() *FocusLinesApp {
 	return app
 }
 
+func (app *FocusLinesApp) Name() string {
+	return "focus-lines"
+}
+
 func (app *FocusLinesApp) Start() error {
 	app.SendOutput([]rofi.OutputUpdate{
 		rofi.PromptUpdate{"Select an entry to focus other entry"},
-		rofi.AddAllLinesUpdate{[]*rofi.RofiBlocksLine{
+		rofi.AddAllLinesUpdate{[]rofi.RofiBlocksLine{
 			{Text: "focus entry 3", Data: "3"},
 			{Text: "focus entry 2", Data: "2"},
 			{Text: "focus entry 1000", Data: "1000"},
