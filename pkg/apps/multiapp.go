@@ -2,7 +2,6 @@ package apps
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/erik-overdahl/rofi-blocks-apps/pkg/rofi"
 )
@@ -63,15 +62,12 @@ func (this *MultiApp) SwitchTo(app int) error {
 	return nil
 }
 
-func (this *MultiApp) handleEvent(event rofi.RofiBlocksEvent) error {
+func (this *MultiApp) handleEvent(event rofi.Event) error {
 	// TODO: currently no CUSTOM_KEY events are handed down to child apps
-	if event.Name == rofi.CUSTOM_KEY {
-		idx, err := strconv.Atoi(event.Value)
-		if err != nil {
-			return fmt.Errorf("Unable to read index value: %v", err)
-		}
-		return this.SwitchTo(idx - 1)
-	} else {
+	switch event := event.(type) {
+	case *rofi.CustomKeyEvent:
+		return this.SwitchTo(event.KeyId - 1)
+	default:
 		for _, app := range this.apps {
 			if app == this.current || app.ShouldReceiveInBackground() {
 				// it would be nice if this were async, but hopefully

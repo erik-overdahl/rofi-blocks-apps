@@ -14,13 +14,14 @@ import (
 
 type VolumeApp struct {
 	apps.AppBase
+	lines map[int]*rofi.RofiBlocksLine
 	currentVolume int
 	muted         bool
 }
 
 func MakeVolumeApp() *VolumeApp {
 	app := &VolumeApp{}
-	app.AppBase = apps.MakeApp(app.handleEvent, nil)
+	// app.AppBase = apps.MakeApp(app.handleEvent, nil)
 	return app
 }
 
@@ -28,9 +29,6 @@ func (app *VolumeApp) Start() error {
 	initial := []rofi.OutputUpdate{
 		rofi.PromptUpdate{"Volume"},
 		rofi.AddAllLinesUpdate{Lines: []rofi.RofiBlocksLine{
-			{Text: "volume up", Icon: rofi.ICONS_DIR + "/status/audio-volume-high-symbolic.svg"},
-			{Text: "volume down", Icon: rofi.ICONS_DIR + "/status/audio-volume-low-symbolic.svg"},
-			{Text: "toggle mute", Icon: rofi.ICONS_DIR + "/status/audio-volume-muted-symbolic.svg"},
 		}},
 	}
 	app.SendOutput(initial)
@@ -38,9 +36,11 @@ func (app *VolumeApp) Start() error {
 	return app.AppBase.Start()
 }
 
-func (app *VolumeApp) handleEvent(event rofi.RofiBlocksEvent) error {
-	if event.Name == rofi.SELECT_ENTRY {
-		switch event.Value {
+func (app *VolumeApp) handleEvent(event rofi.Event) error {
+	switch event := event.(type) {
+	case *rofi.SelectEntryEvent:
+		line := app.lines[event.LineId]
+		switch line.Text {
 		case "volume up":
 			exec.Command("pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%").Run()
 		case "volume down":

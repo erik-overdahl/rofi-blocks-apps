@@ -13,7 +13,7 @@ type App interface {
 	Done() <-chan struct{}
 	Foreground() *rofi.RofiBlocksOutput
 	Background()
-	Input() chan<- rofi.RofiBlocksEvent
+	Input() chan<- rofi.Event
 	Output() <-chan []rofi.OutputUpdate
 	ShouldReceiveInBackground() bool
 }
@@ -22,18 +22,18 @@ type AppBase struct {
 	inForeground bool
 	running 	 bool
 	state        *rofi.RofiBlocksOutput
-	input        chan rofi.RofiBlocksEvent
+	input        chan rofi.Event
 	output       chan []rofi.OutputUpdate
 	ctx          context.Context
 	ctxCancel    context.CancelFunc
-	handleEvent  func(rofi.RofiBlocksEvent) error
+	handleEvent  func(rofi.Event) error
 	loop         func()
 }
 
-func MakeApp(handleEvent func(rofi.RofiBlocksEvent) error, loop func()) AppBase {
+func MakeApp(handleEvent func(rofi.Event) error, loop func()) AppBase {
 	return AppBase{
 		state:       rofi.MakeRofiBlocksOutput(),
-		input:       make(chan rofi.RofiBlocksEvent),
+		input:       make(chan rofi.Event),
 		output:      make(chan []rofi.OutputUpdate),
 		handleEvent: handleEvent,
 		loop:        loop,
@@ -46,7 +46,7 @@ func (app *AppBase) Start() error {
 		go app.loop()
 	}
 	if app.handleEvent == nil {
-		app.handleEvent = func(event rofi.RofiBlocksEvent) error { return nil; }
+		app.handleEvent = func(event rofi.Event) error { return nil; }
 	}
 	go func() {
 		for {
@@ -86,7 +86,7 @@ func (app *AppBase) Foreground() *rofi.RofiBlocksOutput {
 	return app.state
 }
 
-func (app *AppBase) Input() chan<- rofi.RofiBlocksEvent {
+func (app *AppBase) Input() chan<- rofi.Event {
 	return app.input
 }
 

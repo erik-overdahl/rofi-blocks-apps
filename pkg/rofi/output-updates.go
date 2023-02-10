@@ -1,6 +1,6 @@
 package rofi
 
-import "github.com/google/uuid"
+// import "github.com/google/uuid"
 
 const (
 	promptChanged      = 0x01
@@ -85,7 +85,7 @@ func (u LineUpdate) Apply(output *RofiBlocksOutput) {
 }
 
 type RemoveLineUpdate struct {
-	LineId uuid.UUID
+	LineId int
 }
 
 func (u RemoveLineUpdate) Apply(output *RofiBlocksOutput) {

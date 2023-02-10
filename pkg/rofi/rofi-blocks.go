@@ -2,43 +2,69 @@ package rofi
 
 import (
 	"encoding/json"
-
-	"github.com/google/uuid"
+	"strconv"
+	"strings"
+	"sync"
 )
 
 const (
-	INPUT_CHANGE      = "input change"
-	CUSTOM_KEY        = "custom key"
-	ACTIVE_ENTRY      = "active entry"
-	SELECT_ENTRY      = "select entry"
-	DELETE_ENTRY      = "delete entry"
-	EXEC_CUSTOM_INPUT = "execute custom input"
-
 	INPUT_ACTION_FILTER = "filter"
 	INPUT_ACTION_SEND   = "send"
 )
 
 var ICONS_DIR = "/usr/share/icons/Adwaita/scalable"
 
-type RofiBlocksEvent struct {
-	Name  string           `json:"name"`
-	Value string           `json:"value"`
-	Data  string           `json:"data"`
-	Prev  *RofiBlocksEvent `json:"-"`
+var (
+	lineId      int = 0
+	lineIdMutex sync.Mutex
+)
+
+func NewLineId() int {
+	lineIdMutex.Lock()
+	defer lineIdMutex.Unlock()
+	lineId++
+	return lineId
 }
 
 type RofiBlocksLine struct {
-	Id        uuid.UUID `json:"-"`
-	Text      string    `json:"text,omitempty"`
-	Icon      string    `json:"icon,omitempty"`
-	Data      string    `json:"data,omitempty"`
-	Urgent    bool      `json:"urgent,omitempty"`
-	Highlight bool      `json:"highlight,omitempty"`
-	Markup    bool      `json:"markup,omitempty"`
+	Id        int
+	Text      string
+	Icon      string
+	Urgent    bool
+	Highlight bool
+	Markup    bool
 }
 
-func NewRofiBlocksLine() *RofiBlocksLine {
-	return &RofiBlocksLine{Id: uuid.New()}
+type rawLine struct {
+	Data      string `json:"data,omitempty"`
+	Text      string `json:"text,omitempty"`
+	Icon      string `json:"icon,omitempty"`
+	Urgent    bool   `json:"urgent,omitempty"`
+	Highlight bool   `json:"highlight,omitempty"`
+	Markup    bool   `json:"markup,omitempty"`
+}
+
+var xmlEscapes = []struct{ old, new string }{
+	{"&", "&amp;"},
+	{`"`, "&quot;"},
+	{"'", "&apos;"},
+	{"<", "&lt;"},
+	{">", "&gt;"},
+}
+
+func (line RofiBlocksLine) MarshalJSON() ([]byte, error) {
+	text := line.Text
+	for _, change := range xmlEscapes {
+		text = strings.ReplaceAll(text, change.old, change.new)
+	}
+	return json.Marshal(rawLine{
+		Data:      strconv.Itoa(line.Id),
+		Text:      text,
+		Icon:      line.Icon,
+		Urgent:    line.Urgent,
+		Highlight: line.Highlight,
+		Markup:    line.Markup,
+	})
 }
 
 // for the output struct, we send just the delta (with the exception that,

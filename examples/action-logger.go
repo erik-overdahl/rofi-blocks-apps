@@ -1,12 +1,12 @@
 package examples
 
 import (
-	"encoding/json"
+	// "encoding/json"
 	"fmt"
 	"time"
 
-	"github.com/erik-overdahl/rofi-blocks-apps/pkg/rofi"
 	"github.com/erik-overdahl/rofi-blocks-apps/pkg/apps"
+	"github.com/erik-overdahl/rofi-blocks-apps/pkg/rofi"
 )
 
 type ActionLoggerApp struct {
@@ -40,16 +40,16 @@ func (app *ActionLoggerApp) ShouldReceiveInBackground() bool {
 	return true
 }
 
-func (app *ActionLoggerApp) handleEvent(event rofi.RofiBlocksEvent) error {
-	text, err := json.Marshal(event)
-	if err != nil {
-		return err
-	}
-	eventLine := rofi.NewRofiBlocksLine()
-	eventLine.Text = string(text)
-	eventLine.Data = fmt.Sprintf("%d", app.lineNum)
+func (app *ActionLoggerApp) handleEvent(event rofi.Event) error {
+	// text, err := json.Marshal(event)
+	// if err != nil {
+	// 	return err
+	// }
 	app.SendOutput([]rofi.OutputUpdate{
-		rofi.AddLineUpdate{Prepend: true, Line: *eventLine},
+		rofi.AddLineUpdate{Prepend: true, Line: rofi.RofiBlocksLine{
+			Id:   rofi.NewLineId(),
+			Text: fmt.Sprintf("%#v", event),
+		}},
 	})
 	app.lineNum++
 	return nil

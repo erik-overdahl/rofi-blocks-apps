@@ -6,7 +6,6 @@ import (
 
 	"github.com/erik-overdahl/rofi-blocks-apps/pkg/apps"
 	"github.com/erik-overdahl/rofi-blocks-apps/pkg/rofi"
-	"github.com/google/uuid"
 )
 
 type ShowLinesApp struct {
@@ -27,20 +26,58 @@ func (app *ShowLinesApp) Name() string {
 func (app *ShowLinesApp) Start() error {
 	currentTime := time.Now().Format("03:04:05")
 	app.lines = []*rofi.RofiBlocksLine{
-		{Text: fmt.Sprintf("Also updates menu option text %s", currentTime)},
-		{Text: "Line with urgent flag", Urgent: true},
-		{Text: "Line with highlight flag", Highlight: true},
-		{Text: "multi-byte unicode: •"},
-		{Text: `icon unicode character: 😀`},
-		{Text: "folder icon", Icon: "folder"},
-		{Text: "Line <i>with</i> <b>markup</b> <b><i>flag</i></b>", Markup: true},
-		{Text: "Line <i>toggling</i> <b>markup</b> flag", Markup: true},
-		{Text: "Line <i>without</i> <b>markup</b> <b><i>flag</i></b>", Markup: false},
-		{Text: "Line with <b><i>all</i></b> flags", Urgent: true, Highlight: true, Markup: true},
+		{
+			Id: rofi.NewLineId(),
+			Text: fmt.Sprintf("Also updates menu option text %s", currentTime),
+		},
+		{
+			Id: rofi.NewLineId(),
+			Text: "Line with urgent flag",
+			Urgent: true,
+		},
+		{
+			Id: rofi.NewLineId(),
+			Text: "Line with highlight flag",
+			Highlight: true,
+		},
+		{
+			Id: rofi.NewLineId(),
+			Text: "multi-byte unicode: •",
+		},
+		{
+			Id: rofi.NewLineId(),
+			Text: `icon unicode character: 😀`,
+		},
+		{
+			Id: rofi.NewLineId(),
+			Text: "folder icon",
+			Icon: "folder",
+		},
+		{
+			Id: rofi.NewLineId(),
+			Text: "Line <i>with</i> <b>markup</b> <b><i>flag</i></b>",
+			Markup: true,
+		},
+		{
+			Id: rofi.NewLineId(),
+			Text: "Line <i>toggling</i> <b>markup</b> flag",
+			Markup: true,
+		},
+		{
+			Id: rofi.NewLineId(),
+			Text: "Line <i>without</i> <b>markup</b> <b><i>flag</i></b>",
+			Markup: false,
+		},
+		{
+			Id: rofi.NewLineId(),
+			Text: "Line with <b><i>all</i></b> flags",
+			Urgent: true,
+			Highlight: true,
+			Markup: true,
+		},
 	}
 	addLines := rofi.AddAllLinesUpdate{Lines: make([]rofi.RofiBlocksLine, len(app.lines), len(app.lines))}
 	for i, line := range app.lines {
-		line.Id = uuid.New()
 		addLines.Lines[i] = *line
 	}
 	initial := []rofi.OutputUpdate{
