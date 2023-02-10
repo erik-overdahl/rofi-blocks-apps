@@ -150,10 +150,11 @@ func (r *RofiProcess) readEvent(data []byte) (Event, error) {
 	case "execute custom input":
 		return &ExecCustomEntryEvent{Value: raw.Value, prev: r.LastEvent}, nil
 	}
-	id, err := strconv.Atoi(raw.Data)
+	idInt, err := strconv.Atoi(raw.Data)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read line id: %w", err)
 	}
+	id := LineId(idInt)
 	switch raw.Name {
 	case "active entry":
 		return &ActiveEntryEvent{LineId: id, prev: r.LastEvent}, nil

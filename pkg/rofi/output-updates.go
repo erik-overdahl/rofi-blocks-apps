@@ -85,7 +85,7 @@ func (u LineUpdate) Apply(output *RofiBlocksOutput) {
 }
 
 type RemoveLineUpdate struct {
-	LineId int
+	LineId LineId
 }
 
 func (u RemoveLineUpdate) Apply(output *RofiBlocksOutput) {

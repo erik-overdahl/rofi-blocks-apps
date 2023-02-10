@@ -29,8 +29,8 @@ func (event *CustomKeyEvent) Prev() Event {
 }
 
 type ActiveEntryEvent struct {
-	LineId int
-	prev  Event
+	LineId LineId
+	prev   Event
 }
 
 func (event *ActiveEntryEvent) Prev() Event {
@@ -38,7 +38,7 @@ func (event *ActiveEntryEvent) Prev() Event {
 }
 
 type SelectEntryEvent struct {
-	LineId int
+	LineId LineId
 	prev   Event
 }
 
@@ -47,7 +47,7 @@ func (event *SelectEntryEvent) Prev() Event {
 }
 
 type DeleteEntryEvent struct {
-	LineId int
+	LineId LineId
 	prev   Event
 }
 

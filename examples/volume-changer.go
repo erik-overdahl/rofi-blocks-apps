@@ -14,7 +14,7 @@ import (
 
 type VolumeApp struct {
 	apps.AppBase
-	lines map[int]*rofi.RofiBlocksLine
+	lines map[rofi.LineId]*rofi.RofiBlocksLine
 	currentVolume int
 	muted         bool
 }

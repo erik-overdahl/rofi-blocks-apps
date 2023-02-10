@@ -15,11 +15,13 @@ const (
 var ICONS_DIR = "/usr/share/icons/Adwaita/scalable"
 
 var (
-	lineId      int = 0
+	lineId      LineId = 0
 	lineIdMutex sync.Mutex
 )
 
-func NewLineId() int {
+type LineId int
+
+func NewLineId() LineId {
 	lineIdMutex.Lock()
 	defer lineIdMutex.Unlock()
 	lineId++
@@ -27,7 +29,7 @@ func NewLineId() int {
 }
 
 type RofiBlocksLine struct {
-	Id        int
+	Id        LineId
 	Text      string
 	Icon      string
 	Urgent    bool
@@ -58,7 +60,7 @@ func (line RofiBlocksLine) MarshalJSON() ([]byte, error) {
 		text = strings.ReplaceAll(text, change.old, change.new)
 	}
 	return json.Marshal(rawLine{
-		Data:      strconv.Itoa(line.Id),
+		Data:      strconv.Itoa(int(line.Id)),
 		Text:      text,
 		Icon:      line.Icon,
 		Urgent:    line.Urgent,
