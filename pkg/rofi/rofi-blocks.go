@@ -3,7 +3,6 @@ package rofi
 import (
 	"encoding/json"
 	"strconv"
-	"strings"
 	"sync"
 )
 
@@ -46,22 +45,10 @@ type rawLine struct {
 	Markup    bool   `json:"markup,omitempty"`
 }
 
-var xmlEscapes = []struct{ old, new string }{
-	{"&", "&amp;"},
-	{`"`, "&quot;"},
-	{"'", "&apos;"},
-	{"<", "&lt;"},
-	{">", "&gt;"},
-}
-
 func (line RofiBlocksLine) MarshalJSON() ([]byte, error) {
-	text := line.Text
-	for _, change := range xmlEscapes {
-		text = strings.ReplaceAll(text, change.old, change.new)
-	}
 	return json.Marshal(rawLine{
 		Data:      strconv.Itoa(int(line.Id)),
-		Text:      text,
+		Text:      line.Text,
 		Icon:      line.Icon,
 		Urgent:    line.Urgent,
 		Highlight: line.Highlight,
